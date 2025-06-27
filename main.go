@@ -30,5 +30,7 @@ func main(){
 	r.HandleFunc("/patients",app.PatientGet).Methods("GET")
 	r.HandleFunc("/patients/{id}",app.PatientUpdate).Methods("PUT")
 	r.HandleFunc("/patients/{id}",app.PatientDelete).Methods("DELETE")
+	r.HandleFunc("/login",app.Login_Handler).Methods("POST")
+	r.HandleFunc("/signup",app.User_Signup).Methods("POST")
 	http.ListenAndServe(":8000",r)
 }

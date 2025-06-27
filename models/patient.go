@@ -9,3 +9,9 @@ type Patient struct{
 	Diagnosis string `json:"diagnosis"`
 	Prescription string `json:"prescription"`
 }
+
+type User struct{
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Role string `json:"role"`
+}
