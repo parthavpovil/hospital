@@ -7,7 +7,7 @@ import (
 	"hospital/models"
 	"io"
 	"net/http"
-
+	"hospital/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -34,11 +34,19 @@ func(a *App) Login_Handler(w http.ResponseWriter, r *http.Request){
 	}
 	err3:=bcrypt.CompareHashAndPassword([]byte(retrived_pass),[]byte(temp.Password))
 	if err3==nil{
-		response:=map[string]string{
-			"message":"Login successfull",
-			"role":retrived_role,
+		tokenString, err := auth.GenerateToken(temp.Username, retrived_role)
+		if err != nil {
+			http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+			return
+		}
+
+		response := map[string]string{
+			"message": "Login successful",
+			"token":   tokenString,
+			"role":    retrived_role,
 		}
 		json.NewEncoder(w).Encode(response)
+
 
 	}else{
 		http.Error(w,"invalid password or role",http.StatusInternalServerError)

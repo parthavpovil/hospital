@@ -1,15 +1,16 @@
 package main
 
 import (
-	
 	"log"
 	"net/http"
 
 	"database/sql"
 
+	"hospital/handlers"
+	"hospital/middleware"
+
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
-	"hospital/handlers"
 )
 
 
@@ -24,13 +25,21 @@ func main(){
 	defer db.Close()
 
 	r:=mux.NewRouter()
-
 	app:=&handlers.App{DB:db}
-	r.HandleFunc("/patients",app.PatientAdd).Methods("POST")
-	r.HandleFunc("/patients",app.PatientGet).Methods("GET")
-	r.HandleFunc("/patients/{id}",app.PatientUpdate).Methods("PUT")
-	r.HandleFunc("/patients/{id}",app.PatientDelete).Methods("DELETE")
+
 	r.HandleFunc("/login",app.Login_Handler).Methods("POST")
 	r.HandleFunc("/signup",app.User_Signup).Methods("POST")
+
+	secured := r.PathPrefix("/patients").Subrouter()
+	secured.Use(middleware.AuthMiddleware)
+
+	secured.HandleFunc("/", app.PatientAdd).Methods("POST")
+	secured.HandleFunc("/", app.PatientGet).Methods("GET")
+	secured.HandleFunc("/reception/{id}", app.PatientUpdateReception).Methods("PUT")
+	secured.HandleFunc("/doctor/{id}", app.PatientUpdateDoctor).Methods("PUT")
+	secured.HandleFunc("/{id}", app.PatientDelete).Methods("DELETE")
+	secured.HandleFunc("/{id}",app.PatientGetbyId).Methods("GET")
+
+	
 	http.ListenAndServe(":8000",r)
 }

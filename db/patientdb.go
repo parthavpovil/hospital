@@ -31,9 +31,18 @@ func GetAllPatient(db *sql.DB)([]models.Patient,error){
 	return patients,nil
 }
 
-func UpdatePatient(db *sql.DB,id int, temp models.Patient)error  {
-	query:="UPDATE patients SET name=$1, age=$2, gender=$3, contact=$4, diagnosis=$5, prescription=$6 WHERE id=$7"
-	_,err:=db.Exec(query,&temp.Name,&temp.Age,&temp.Gender,&temp.Contact,&temp.Diagnosis,&temp.Prescription,id)
+func UpdatePatientInfo(db *sql.DB,id int, temp models.Patient)error  {
+	query:="UPDATE patients SET name=$1, age=$2, gender=$3, contact=$4 WHERE id=$5"
+	_,err:=db.Exec(query,&temp.Name,&temp.Age,&temp.Gender,&temp.Contact,id)
+	if err!=nil{
+		return err
+	}
+	return nil
+}
+
+func UpdatePatientMedical(db *sql.DB,id int, temp models.Patient)error  {
+	query:="UPDATE patients SET diagnosis=$1, prescription=$2 WHERE id=$3"
+	_,err:=db.Exec(query,&temp.Diagnosis,&temp.Prescription,id)
 	if err!=nil{
 		return err
 	}
@@ -47,4 +56,14 @@ func DeletePatient(db *sql.DB,id int)error{
 		return err
 	}
 	return nil
+}
+func GetPatientById(db *sql.DB,id int)(models.Patient,error){
+	query:="SELECT * FROM patients WHERE id=$1"
+	var temp1 models.Patient
+	err:=db.QueryRow(query,id).Scan(&temp1.ID,&temp1.Name,&temp1.Age,&temp1.Gender,&temp1.Contact,&temp1.Diagnosis,&temp1.Prescription)
+	if err!=nil{
+		return temp1 ,err
+	}
+	return temp1,nil
+
 }
